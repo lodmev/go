@@ -36,6 +36,8 @@ func SetupLogger(conf LoggerConfig) {
 
 func parseLevel(l string) (zerolog.Level, error) {
 	switch strings.ToLower(l) {
+        case "trace":
+                return zerolog.TraceLevel, nil
 	case "debug":
 		return zerolog.DebugLevel, nil
 	case "info":
