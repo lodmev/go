@@ -27,23 +27,18 @@ func ExportConfig(fs *flag.FlagSet) *LoggerConfig {
 
 }
 
-func (conf LoggerConfig) Setup() {
+func (conf LoggerConfig) Setup() (err error) {
 	if conf.Human {
 		Logger = Output(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.Stamp})
 	}
 	level, err := parseLevel(conf.Level)
-	if err != nil {
-		Fatal().
-			Err(err).
-			Msgf("Can't parse log level %s\n", conf.Level)
-	}
 	zerolog.SetGlobalLevel(level)
 	if conf.Caller {
 		Logger = With().Caller().Logger()
 	}
 	stdlog.SetFlags(0)
 	stdlog.SetOutput(Logger)
-
+	return
 }
 
 func parseLevel(l string) (zerolog.Level, error) {
