@@ -20,7 +20,7 @@ type LoggerConfig struct {
 
 func ExportConfig(fs *flag.FlagSet) *LoggerConfig {
 	conf := LoggerConfig{}
-	fs.StringVar(&conf.Level, "lvl", "info", "level of logging")
+	fs.StringVar(&conf.Level, "lvl", "inf", "level of logging, may be: trc, dbg, inf, warn, err")
 	fs.BoolVar(&conf.Human, "hum", false, "set pretty output of logging")
 	fs.BoolVar(&conf.Caller, "cal", false, "add info about code, that call log message")
 	return &conf
@@ -43,15 +43,15 @@ func (conf LoggerConfig) Setup() (err error) {
 
 func parseLevel(l string) (zerolog.Level, error) {
 	switch strings.ToLower(l) {
-	case "trace":
+	case "trc":
 		return zerolog.TraceLevel, nil
-	case "debug":
+	case "dbg":
 		return zerolog.DebugLevel, nil
-	case "info":
+	case "inf":
 		return zerolog.InfoLevel, nil
 	case "warn":
 		return zerolog.WarnLevel, nil
-	case "error":
+	case "err":
 		return zerolog.ErrorLevel, nil
 	}
 

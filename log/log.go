@@ -82,11 +82,11 @@ func Error() *zerolog.Event {
 }
 
 // Fatal starts a new message with fatal level. The os.Exit(1) function
-// is called by the Msg method.
-//
-// You must call Msg on the returned event in order to send the event.
-func Fatal() *zerolog.Event {
-	return Logger.Fatal()
+// will be called and error message be send.
+// I change method Fatal() of zerolog
+// now it's inmlement Fatal method of standart library
+func Fatal(err error) {
+	Logger.Fatal().Err(err).Send()
 }
 
 // Panic starts a new message with panic level. The message is also sent
