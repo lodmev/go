@@ -89,6 +89,11 @@ func Fatal(err error) {
 	Logger.Fatal().Err(err).Send()
 }
 
+// Fatalf implements same method of standart library.
+func Fatalf(format string, v ...interface{}) {
+	Logger.Fatal().CallerSkipFrame(1).Msgf(format, v...)
+}
+
 // Panic starts a new message with panic level. The message is also sent
 // to the panic function.
 //
