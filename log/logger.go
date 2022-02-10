@@ -12,14 +12,14 @@ import (
 	"github.com/rs/zerolog"
 )
 
-type LoggerConfig struct {
+type Config struct {
 	Level  string
 	Human  bool
 	Caller bool
 }
 
-func ExportConfig(fs *flag.FlagSet) *LoggerConfig {
-	conf := LoggerConfig{}
+func ExportConf(fs *flag.FlagSet) *Config {
+	conf := Config{}
 	fs.StringVar(&conf.Level, "lvl", "inf", "level of logging, may be: trc, dbg, inf, warn, err")
 	fs.BoolVar(&conf.Human, "hum", false, "set pretty output of logging")
 	fs.BoolVar(&conf.Caller, "cal", false, "add info about code, that call log message")
@@ -27,7 +27,7 @@ func ExportConfig(fs *flag.FlagSet) *LoggerConfig {
 
 }
 
-func (conf LoggerConfig) Setup() (err error) {
+func (conf Config) Setup() (err error) {
 	if conf.Human {
 		Logger = Output(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.Stamp})
 	}
