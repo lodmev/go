@@ -29,7 +29,12 @@ func ExportConf(fs *flag.FlagSet) *Config {
 
 func (conf Config) Setup() (err error) {
 	if conf.Human {
-		Logger = Output(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.Stamp})
+		if loc, err := time.LoadLocation("Europe/Moscow"); err == nil {
+			zerolog.TimestampFunc = func() time.Time {
+				return time.Now().In(loc)
+			}
+		}
+		Logger = Output(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.Kitchen})
 	}
 	level, err := parseLevel(conf.Level)
 	zerolog.SetGlobalLevel(level)

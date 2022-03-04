@@ -51,3 +51,34 @@ func TestWrapfInNoTypeError(t *testing.T) {
 	assert.Equal(t, errors.NoType, errors.GetType(wrappedError))
 	assert.EqualError(t, wrappedError, "error 1: an_error 2")
 }
+func TestGotSuches(t *testing.T) {
+	const (
+		NoType errors.ErrorType = iota
+		NewTypeErr
+		NewFTypeErr
+		WrapfTypeErr
+		NotSuchErrors
+		ContextErr
+	)
+	NoType.New("no type err")
+	er := ContextErr.New("cont err")
+	errors.AddContext(er, "cont", 0)
+	err := NewTypeErr.New("some error")
+	NewFTypeErr.Newf("any %s", "error")
+	WrapfTypeErr.Wrapf(err, "and %s", "another")
+	switch {
+	case NotSuchErrors.GotSuches():
+		t.Fatalf("expected for NotSuchError %t, got %t", false, true)
+	case !ContextErr.GotSuches():
+		t.Fatalf("expected for ContextErr %t, got %t", true, false)
+	case !NoType.GotSuches():
+		t.Fatalf("expected for NoType %t, got %t", true, false)
+	case !NewTypeErr.GotSuches():
+		t.Fatalf("expected for NewTypeErr %t, got %t", true, false)
+	case !NewFTypeErr.GotSuches():
+		t.Fatalf("expected for NewFTypeErr %t, got %t", true, false)
+	case !WrapfTypeErr.GotSuches():
+		t.Fatalf("expected for WrapfTypeErr %t, got %t", true, false)
+
+	}
+}

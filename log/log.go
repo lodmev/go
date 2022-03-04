@@ -10,6 +10,12 @@ import (
 	"github.com/rs/zerolog"
 )
 
+type GetContext interface {
+	GetContext() map[string]interface{}
+}
+
+type Event zerolog.Event
+
 // Logger is the global logger.
 var Logger = zerolog.New(os.Stderr).With().Timestamp().Logger()
 
@@ -44,6 +50,17 @@ func Hook(h zerolog.Hook) zerolog.Logger {
 // You must call Msg on the returned event in order to send the event.
 func Err(err error) *zerolog.Event {
 	return Logger.Err(err)
+}
+func ErrContext(err error) *zerolog.Event {
+	return Err(err).Dict("error context", DictErrFields(err))
+}
+func DictErrFields(err error) *zerolog.Event {
+	var context map[string]interface{}
+	if contextErr, ok := err.(GetContext); ok {
+		context = contextErr.GetContext()
+	}
+	return zerolog.Dict().Fields(context)
+
 }
 
 // Trace starts a new message with trace level.
