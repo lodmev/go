@@ -51,6 +51,11 @@ func Hook(h zerolog.Hook) zerolog.Logger {
 func Err(err error) *zerolog.Event {
 	return Logger.Err(err)
 }
+// ErrT starts a new message with error and error type  
+// You must call Msg on the returned event in order to send the event.
+func ErrT(err error) *zerolog.Event {
+	return Logger.Err(err).Str("error type=", fmt.Sprintf("%T",err))
+}
 func ErrContext(err error) *zerolog.Event {
 	return Err(err).Dict("error context", DictErrFields(err))
 }
