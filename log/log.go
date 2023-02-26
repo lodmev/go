@@ -2,10 +2,8 @@
 package log
 
 import (
-	"context"
 	"fmt"
-	"io"
-	"os"
+	"context"
 
 	"github.com/rs/zerolog"
 )
@@ -14,142 +12,112 @@ type GetContext interface {
 	GetContext() map[string]interface{}
 }
 
-type Event zerolog.Event
-
-// Logger is the global logger.
-var Logger = zerolog.New(os.Stderr).With().Timestamp().Logger()
-
-// Output duplicates the global logger and sets w as its output.
-func Output(w io.Writer) zerolog.Logger {
-	return Logger.Output(w)
+func Errf(format string, a ...any) {
+	wrapedErr := fmt.Errorf(format, a...)
+	Error().Err(wrapedErr).Send()
 }
 
-// With creates a child logger with the field added to its context.
-func With() zerolog.Context {
-	return Logger.With()
+// Errt starts a new message with error and error type  
+func Errt(err error) {
+	Err(err).Str("error type", fmt.Sprintf("%T",err)).Send()
 }
 
-// Level creates a child logger with the minimum accepted level set to level.
-func Level(level zerolog.Level) zerolog.Logger {
-	return Logger.Level(level)
+// Fatal simalar same method of standart library.
+func Fatal(err error) {
+	Logger.Fatal().Err(err).Send()
 }
 
-// Sample returns a logger with the s sampler.
-func Sample(s zerolog.Sampler) zerolog.Logger {
-	return Logger.Sample(s)
+// Fatalf simalar same method of standart library.
+func Fatalf(format string, a ...any) {
+	wrapedErr := fmt.Errorf(format, a...)
+	Logger.Fatal().Err(wrapedErr).Send()
 }
 
-// Hook returns a logger with the h Hook.
-func Hook(h zerolog.Hook) zerolog.Logger {
-	return Logger.Hook(h)
-}
-
-// Err starts a new message with error level with err as a field if not nil or
-// with info level if err is nil.
-//
-// You must call Msg on the returned event in order to send the event.
-func Err(err error) *zerolog.Event {
-	return Logger.Err(err)
-}
-// ErrT starts a new message with error and error type  
-// You must call Msg on the returned event in order to send the event.
-func ErrT(err error) *zerolog.Event {
-	return Logger.Err(err).Str("error type=", fmt.Sprintf("%T",err))
-}
 func ErrContext(err error) *zerolog.Event {
 	return Err(err).Dict("error context", DictErrFields(err))
 }
+
 func DictErrFields(err error) *zerolog.Event {
 	var context map[string]interface{}
 	if contextErr, ok := err.(GetContext); ok {
 		context = contextErr.GetContext()
 	}
 	return zerolog.Dict().Fields(context)
-
 }
 
-// Trace starts a new message with trace level.
+// Output duplicates the global logger and sets w as its output.
+var Output = Logger.Output
+
+// With creates a child logger with the field added to its context.
+var With = Logger.With
+
+// Level creates a child logger with the minimum accepted level set to level.
+var Level = Logger.Level
+
+// Sample returns a logger with the s sampler.
+var Sample = Logger.Sample
+
+// Hook returns a logger with the h Hook.
+var Hook = Logger.Hook
+
+// Err starts a new message with error level with err as a field if not nil or
+// with info level if err is nil.
 //
 // You must call Msg on the returned event in order to send the event.
-func Trace() *zerolog.Event {
-	return Logger.Trace()
-}
-
-// Debug starts a new message with debug level.
-//
-// You must call Msg on the returned event in order to send the event.
-func Debug() *zerolog.Event {
-	return Logger.Debug()
-}
-
-// Info starts a new message with info level.
-//
-// You must call Msg on the returned event in order to send the event.
-func Info() *zerolog.Event {
-	return Logger.Info()
-}
-
-// Warn starts a new message with warn level.
-//
-// You must call Msg on the returned event in order to send the event.
-func Warn() *zerolog.Event {
-	return Logger.Warn()
-}
+var Err = Logger.Err
 
 // Error starts a new message with error level.
 //
 // You must call Msg on the returned event in order to send the event.
-func Error() *zerolog.Event {
-	return Logger.Error()
-}
+var Error = Logger.Error
 
-// Fatal starts a new message with fatal level. The os.Exit(1) function
-// will be called and error message be send.
-// I change method Fatal() of zerolog
-// now it's inmlement Fatal method of standart library
-func Fatal(err error) {
-	Logger.Fatal().Err(err).Send()
-}
+// Trace starts a new message with trace level.
+//
+// You must call Msg on the returned event in order to send the event.
+var Trace = Logger.Trace
 
-// Fatalf implements same method of standart library.
-func Fatalf(format string, v ...interface{}) {
-	Logger.Fatal().CallerSkipFrame(1).Msgf(format, v...)
-}
+// Debug starts a new message with debug level.
+//
+// You must call Msg on the returned event in order to send the event.
+var Debug = Logger.Debug
+
+// Info starts a new message with info level.
+//
+// You must call Msg on the returned event in order to send the event.
+var Info = Logger.Info
+
+// Warn starts a new message with warn level.
+//
+// You must call Msg on the returned event in order to send the event.
+var Warn = Logger.Warn
 
 // Panic starts a new message with panic level. The message is also sent
 // to the panic function.
 //
 // You must call Msg on the returned event in order to send the event.
-func Panic() *zerolog.Event {
-	return Logger.Panic()
-}
+var Panic = Logger.Panic
 
 // WithLevel starts a new message with level.
 //
 // You must call Msg on the returned event in order to send the event.
-func WithLevel(level zerolog.Level) *zerolog.Event {
-	return Logger.WithLevel(level)
-}
+var WithLevel = Logger.WithLevel
 
 // Log starts a new message with no level. Setting zerolog.GlobalLevel to
 // zerolog.Disabled will still disable events produced by this method.
 //
 // You must call Msg on the returned event in order to send the event.
-func Log() *zerolog.Event {
-	return Logger.Log()
-}
+var Log = Logger.Log
 
 // Print sends a log event using debug level and no extra field.
 // Arguments are handled in the manner of fmt.Print.
-func Print(v ...interface{}) {
-	Logger.Debug().CallerSkipFrame(1).Msg(fmt.Sprint(v...))
-}
+var Print = Logger.Print
+
+//Println is alias for Print
+var Println = Logger.Print
 
 // Printf sends a log event using debug level and no extra field.
 // Arguments are handled in the manner of fmt.Printf.
-func Printf(format string, v ...interface{}) {
-	Logger.Debug().CallerSkipFrame(1).Msgf(format, v...)
-}
+var Printf = Logger.Printf
 
 // Ctx returns the Logger associated with the ctx. If no logger
 // is associated, a disabled logger is returned.
