@@ -12,14 +12,19 @@ type GetContext interface {
 	GetContext() map[string]interface{}
 }
 
-func Errf(format string, a ...any) {
+// Errf formats a string with specifier and wrap it to error
+// Returns zerolog.Event with error level
+// You must call Msg on the returned event in order to send the event.
+func Errf(format string, a ...any) *zerolog.Event {
 	wrapedErr := fmt.Errorf(format, a...)
-	Error().Err(wrapedErr).Send()
+	return Error().Err(wrapedErr)
 }
 
 // Errt starts a new message with error and error type  
-func Errt(err error) {
-	Err(err).Str("error type", fmt.Sprintf("%T",err)).Send()
+// And add message string
+// You must call Msg on the returned event in order to send the event.
+func Errt(err error) *zerolog.Event {
+	return Err(err).Str("error type", fmt.Sprintf("%T",err))
 }
 
 // Fatal simalar same method of standart library.
